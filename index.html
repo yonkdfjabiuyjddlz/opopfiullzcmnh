@@ -1,0 +1,293 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="apple-touch-fullscreen" content="no"/>
+        <style>
+            .btnContainer{
+                margin: 3px 0;
+            }  
+        </style>
+</head>
+<body>
+    <div>
+        <div>
+            <input id="packageName" placeholder="这里填写包名" style="display: block; width: 480px;"></input>
+            <textarea id="config" placeholder="这里放置未加密的配置" style="width: 480px; height: 384px; margin-top: 3px;"></textarea>
+            <div class="btnContainer">
+                <button id="encryptBtn">生成加密内容</button>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div>
+            <textarea id="encrypt" placeholder="这里放置加密后的内容" style="width: 480px; min-height: 175px;"></textarea>
+            <div class="btnContainer">
+                <button id="decryptBtn">解密内容</button>
+                <button id="cpy">复制内容</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        function Base64() {
+            // private property
+            _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+ 
+            // public method for encoding
+            this.encode = function (input) {
+                var output = "";
+                var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+                var i = 0;
+                input = _utf8_encode(input);
+                while (i < input.length) {
+                    chr1 = input.charCodeAt(i++);
+                    chr2 = input.charCodeAt(i++);
+                    chr3 = input.charCodeAt(i++);
+                    enc1 = chr1 >> 2;
+                    enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+                    enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+                    enc4 = chr3 & 63;
+                    if (isNaN(chr2)) {
+                        enc3 = enc4 = 64;
+                    } else if (isNaN(chr3)) {
+                        enc4 = 64;
+                    }
+                    output = output +
+                        _keyStr.charAt(enc1) + _keyStr.charAt(enc2) +
+                        _keyStr.charAt(enc3) + _keyStr.charAt(enc4);
+                }
+                return output;
+            }
+ 
+            // public method for decoding
+            this.decode = function (input) {
+                var output = "";
+                var chr1, chr2, chr3;
+                var enc1, enc2, enc3, enc4;
+                var i = 0;
+                input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+                while (i < input.length) {
+                    enc1 = _keyStr.indexOf(input.charAt(i++));
+                    enc2 = _keyStr.indexOf(input.charAt(i++));
+                    enc3 = _keyStr.indexOf(input.charAt(i++));
+                    enc4 = _keyStr.indexOf(input.charAt(i++));
+                    chr1 = (enc1 << 2) | (enc2 >> 4);
+                    chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+                    chr3 = ((enc3 & 3) << 6) | enc4;
+                    output = output + String.fromCharCode(chr1);
+                    if (enc3 != 64) {
+                        output = output + String.fromCharCode(chr2);
+                    }
+                    if (enc4 != 64) {
+                        output = output + String.fromCharCode(chr3);
+                    }
+                }
+                output = _utf8_decode(output);
+                return output;
+            }
+ 
+            // private method for UTF-8 encoding
+            _utf8_encode = function (string) {
+                string = string.replace(/\r\n/g, "\n");
+                var utftext = "";
+                for (var n = 0; n < string.length; n++) {
+                    var c = string.charCodeAt(n);
+                    if (c < 128) {
+                        utftext += String.fromCharCode(c);
+                    } else if ((c > 127) && (c < 2048)) {
+                        utftext += String.fromCharCode((c >> 6) | 192);
+                        utftext += String.fromCharCode((c & 63) | 128);
+                    } else {
+                        utftext += String.fromCharCode((c >> 12) | 224);
+                        utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+                        utftext += String.fromCharCode((c & 63) | 128);
+                    }
+ 
+                }
+                return utftext;
+            }
+ 
+            // private method for UTF-8 decoding
+            _utf8_decode = function (utftext) {
+                var string = "";
+                var i = 0;
+                var c = c1 = c2 = 0;
+                while (i < utftext.length) {
+                    c = utftext.charCodeAt(i);
+                    if (c < 128) {
+                        string += String.fromCharCode(c);
+                        i++;
+                    } else if ((c > 191) && (c < 224)) {
+                        c2 = utftext.charCodeAt(i + 1);
+                        string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+                        i += 2;
+                    } else {
+                        c2 = utftext.charCodeAt(i + 1);
+                        c3 = utftext.charCodeAt(i + 2);
+                        string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+                        i += 3;
+                    }
+                }
+                return string;
+            }
+        }
+
+        function myrandom(value) {
+            var quotient, remainder, t;
+            quotient = Math.floor(value[0] / 127773);
+            remainder = value[0] % 127773;
+            t = 16807 * remainder - 2836 * quotient;
+            if (t <= 0) t += 0x7FFFFFFF;
+            return ((value[0] = t) % (0x7FFFFFFF + 1));
+        }
+
+        function getCharIndex(c) {
+            var index = 0;
+            if(c == '+' || c == '-') {
+                index = 62;
+            } else if(c == '/' || c == '$') {
+                index = 63;
+            } else if(c == '=' || c == '_') {
+                index = 64;
+            }
+            if(index == 0) {
+                index = c.charCodeAt() - 'a'.charCodeAt();
+                // 小写
+                if (index >= 0 && index < 26) {
+                    index += 26;
+                } else {
+                    index = c.charCodeAt() - '0'.charCodeAt();
+                    if (index >= 0 && index < 10) {
+                        index += 52;
+                    } else {
+                        index = c.charCodeAt() - 'A'.charCodeAt();
+                    }
+                }
+            }
+            return index;
+        }
+
+        function getCharByIndex(index, origin) {
+            if(index == 62) return origin ? '+' : '-';
+            if(index == 63) return origin ? '/' : '$';
+            if(index == 64) return origin ? '=' : '_';
+            if(index >= 0 && index < 26) {
+                return String.fromCharCode('A'.charCodeAt() + index);
+            } else if(index >= 26 && index < 52) {
+                return String.fromCharCode('a'.charCodeAt() + index - 26);
+            } else {
+                return String.fromCharCode('0'.charCodeAt() + index - 52);
+            }
+        }
+
+        function encrypt(str, seedString) {
+            let base64 = new Base64()
+            let encode = base64.encode(str);
+            let seed = [0x7FFFFFFF];
+            let sum = 0;
+            for(let i = 0; i < seedString.length; i++) {
+                sum += seedString.charCodeAt(i);
+            }
+            seed[0] ^= sum;
+            let ret = ""
+            for(let i = 0; i < encode.length; i++) {
+                let c = encode.at(i);
+                let charIndex = getCharIndex(c);
+                let offset = (myrandom(seed) % 65);
+                charIndex = (charIndex + offset) % 65;
+                ret += getCharByIndex(charIndex, false);
+            }
+
+            return ret;
+        }
+        
+        function decrypt(str, seedString) {
+            let seed = [0x7FFFFFFF];
+            let sum = 0;
+            for(let i = 0; i < seedString.length; i++) {
+                sum += seedString.charCodeAt(i);
+            }
+            seed[0] ^= sum;
+            let ret = "";
+            for(let i = 0; i < str.length; i++) {
+                let c = str.at(i);
+                let charIndex = getCharIndex(c);
+                let offset = myrandom(seed) % 65;
+                charIndex = (charIndex + 65 - offset) % 65;
+                ret += getCharByIndex(charIndex, true);
+            }
+            var base64 = new Base64()
+            return base64.decode(ret);
+        }
+        
+        function saveAllData() {
+            let config = document.getElementById('config');
+            let packageName = document.getElementById('packageName');
+            let encrypt = document.getElementById('encrypt');
+            localStorage.setItem("config",config.value);
+            localStorage.setItem("packageName",packageName.value);
+            localStorage.setItem("encrypt",encrypt.value);
+        }
+
+        function loadAllData() {
+            let config = document.getElementById('config');
+            let packageName = document.getElementById('packageName');
+            let encrypt = document.getElementById('encrypt');
+            let configData = localStorage.getItem("config");
+            let packageNameData = localStorage.getItem("packageName");
+            let encryptData = localStorage.getItem("encrypt");
+            if(configData) config.value = configData;
+            if(packageNameData) packageName.value = packageNameData;
+            if(encryptData) encrypt.value = encryptData;
+        }
+
+        document.getElementById('encryptBtn').onclick = function (ev) {
+            let packageName = document.getElementById('packageName');
+            let config = document.getElementById('config');
+            let textContent = config.value;
+            let output = document.getElementById('encrypt');
+            if(!packageName.value) {
+                alert("包名不能为空")
+                return;
+            }
+            if(!config.value) {
+                alert("配置内容不能为空")
+                return;
+            }
+            let ret = encrypt(textContent, packageName.value)
+            output.value = ret;
+            saveAllData()
+        }
+
+        document.getElementById('decryptBtn').onclick = function (ev) {
+            let config = document.getElementById('config');
+            let packageName = document.getElementById('packageName');
+            let output = document.getElementById('encrypt');
+            let textContent = output.value;
+            if(!packageName.value) {
+                alert("包名不能为空")
+                return;
+            }
+            if(!output.value) {
+                alert("需解密的不能为空")
+                return;
+            }
+            let ret = decrypt(textContent, packageName.value)
+            config.value = ret;
+            saveAllData()
+        }
+
+        document.getElementById('cpy').onclick = function (ev) {
+            let output = document.getElementById('encrypt');
+            if(output.value !== '') {
+                output.select()
+                document.execCommand('copy')
+            }
+        }
+        loadAllData()
+    </script>
+
+</body>
+</html>
