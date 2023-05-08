@@ -277,7 +277,7 @@
                 return;
             }
             let textContent = output.value;
-            let reg1 = /<<([^<>]+)>>/
+            let reg1 = /.*<<([^<>]+)>>.*/
             let matched = reg1.exec(textContent)
             if(matched) {
                 textContent = matched[1]
