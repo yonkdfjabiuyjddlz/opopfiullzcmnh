@@ -277,6 +277,7 @@
                 return;
             }
             let textContent = output.value;
+            textContent = textContent.replaceAll("%3C%3C", "<<").replaceAll("%3E%3E", ">>")
             let reg1 = /.*<<([^<>]+)>>.*/
             let matched = reg1.exec(textContent)
             if(matched) {
