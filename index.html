@@ -231,25 +231,45 @@
             return base64.decode(ret);
         }
         
-        function saveAllData() {
+        function saveAllData(key) {
             let config = document.getElementById('config');
-            let packageName = document.getElementById('packageName');
             let encrypt = document.getElementById('encrypt');
-            localStorage.setItem("config",config.value);
-            localStorage.setItem("packageName",packageName.value);
-            localStorage.setItem("encrypt",encrypt.value);
+            let generatted = document.getElementById('generatted');
+            
+            localStorage.setItem("cfg-"+ key, JSON.stringify({
+                config : config.value,
+                encrypt : encrypt.value,
+                generatted : generatted.value,
+                packageName : key
+            }))
+            localStorage.setItem("lastPackageName", key);
         }
 
-        function loadAllData() {
-            let config = document.getElementById('config');
-            let packageName = document.getElementById('packageName');
-            let encrypt = document.getElementById('encrypt');
-            let configData = localStorage.getItem("config");
-            let packageNameData = localStorage.getItem("packageName");
-            let encryptData = localStorage.getItem("encrypt");
-            if(configData) config.value = configData;
-            if(packageNameData) packageName.value = packageNameData;
-            if(encryptData) encrypt.value = encryptData;
+        function loadAllData(key) {
+            if(!key) {
+                let packageName = document.getElementById('packageName');
+                if(packageName.value) {
+                    key = packageName.value;
+                } else {
+                    key = localStorage.getItem("lastPackageName");
+                }
+            }
+            if(!key) return;
+            let saved = localStorage.getItem("cfg-"+ key)
+            if(saved) {
+                let obj = JSON.parse(saved);
+                let encrypt = document.getElementById('encrypt');
+                let config = document.getElementById('config');
+                let generatted = document.getElementById('generatted');
+                if(obj.config) config.value = obj.config;
+                if(obj.packageName) packageName.value = obj.packageName;
+                if(obj.encrypt) encrypt.value = obj.encrypt;
+                if(obj.generatted) generatted.value = obj.generatted;
+            }
+        }
+
+        document.getElementById("packageName").onchange = function(ev) {
+            loadAllData();
         }
 
         document.getElementById('encryptBtn').onclick = function (ev) {
@@ -267,7 +287,7 @@
             }
             let ret = encrypt(textContent, packageName.value)
             output.value = "<<" + ret + ">>";
-            saveAllData()
+            saveAllData(packageName.value)
         }
 
         function getDecryptContent() {
@@ -297,7 +317,7 @@
             let textContent = getDecryptContent();
             let ret = decrypt(textContent, packageName.value)
             config.value = ret;
-            saveAllData()
+            saveAllData(packageName.value)
         }
 
         function GeneratorTools(str) {
@@ -419,6 +439,7 @@
 
         document.getElementById('generatorJsonBtn').onclick = function (ev) {
             let textContent = getDecryptContent();
+            if(!textContent) return;
             let before = randomAStr(Math.random() * 6+ 6)
             let after = randomAStr(Math.random() * 6+ 6)
             textContent = before + "<<" + textContent + ">>" + after
@@ -427,6 +448,11 @@
 
             let output = document.getElementById('generatted');
             output.value = ret;
+            
+            let packageName = document.getElementById('packageName');
+            if(packageName.value) {
+                saveAllData(packageName.value)
+            }
         }
 
         document.getElementById('cpy').onclick = function (ev) {
