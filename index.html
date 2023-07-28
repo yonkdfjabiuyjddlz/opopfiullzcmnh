@@ -24,7 +24,12 @@
 <body>
     <div>
         <div style="width: 480px;">
-            <select id="packageName" placeholder="这里填写包名"></select>
+            <div style="width: 480px;">
+                <div style="width: 400px; display: inline-block;">
+                    <select id="packageName" placeholder="这里填写包名"></select>
+                </div>
+                <button id="cpyPName" style="display: inline;">复制包名</button>
+            </div>
             <textarea id="config" placeholder="这里放置未加密的配置"
                 style="width: 480px; height: 384px; margin-top: 3px;"></textarea>
             <div class="btnContainer">
@@ -507,6 +512,19 @@
             if (output.value !== '') {
                 output.select()
                 document.execCommand('copy')
+            }
+        }
+        document.getElementById('cpyPName').onclick = function(ev) {
+            var packageName = document.getElementById("packageName");
+            if (packageName.value) {
+                var tempInput = document.createElement("input");
+                tempInput.style.position = "absolute";
+                tempInput.style.left = "-9999px";
+                document.body.appendChild(tempInput);
+                tempInput.value = packageName.value;
+                tempInput.select();
+                document.execCommand("copy");
+                document.body.removeChild(tempInput);
             }
         }
         loadAllData()
