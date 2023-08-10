@@ -280,6 +280,13 @@
                     key = packageName.value;
                 } else {
                     key = localStorage.getItem("lastPackageName");
+                    if(key) {
+                        let founded = false;
+                        for (let i = 0; i < savedInfo.length; i++) {
+                            if(savedInfo[i].packageName === key) founded = true;
+                        }
+                        if(!founded) key = undefined;
+                    }
                 }
             }
             // savedInfo = savedInfo.sort((a, b) => {
