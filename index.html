@@ -252,14 +252,11 @@
         function saveAllData(key) {
             let config = document.getElementById('config');
             let encrypt = document.getElementById('encrypt');
-            let generatted = document.getElementById('generatted');
 
             localStorage.setItem("cfg-" + key, JSON.stringify({
                 config: config.value,
                 encrypt: encrypt.value,
-                generatted: generatted.value,
                 packageName: key,
-
             }))
             localStorage.setItem("lastPackageName", key);
         }
@@ -312,11 +309,9 @@
                 let obj = JSON.parse(saved);
                 let encrypt = document.getElementById('encrypt');
                 let config = document.getElementById('config');
-                let generatted = document.getElementById('generatted');
                 if (obj.config) config.value = obj.config;
                 if (obj.packageName) packageName.value = obj.packageName;
                 if (obj.encrypt) encrypt.value = obj.encrypt;
-                if (obj.generatted) generatted.value = obj.generatted;
             }
         }
 
@@ -337,6 +332,12 @@
                 alert("配置内容不能为空")
                 return;
             }
+            try {
+                JSON.parse(config.value)
+            } catch(e) {
+                alert("配置填写错误：" + e)
+            }
+
             let ret = encrypt(textContent, packageName.value)
             output.value = "<<" + ret + ">>";
             saveAllData(packageName.value)
