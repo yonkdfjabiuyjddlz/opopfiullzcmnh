@@ -336,6 +336,7 @@
                 JSON.parse(config.value)
             } catch(e) {
                 alert("配置填写错误：" + e)
+                return;
             }
 
             let ret = encrypt(textContent, packageName.value)
