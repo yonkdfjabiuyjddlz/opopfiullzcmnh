@@ -1,0 +1,391 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,minimal-ui" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="apple-touch-fullscreen" content="no" />
+    <style>
+        .btnContainer {
+            margin: 3px 0;
+        }
+    </style>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.default.min.css"
+        integrity="sha512-pTaEn+6gF1IeWv3W1+7X7eM60TFu/agjgoHmYhAfLEU8Phuf6JKiiE8YmsNC0aCgQv4192s4Vai8YZ6VNM6vyQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js"
+        integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+
+<body>
+    <div>
+        <div style="width: 480px;">
+            <div style="width: 480px;">
+                <div style="width: 400px; display: inline-block;">
+                    <select id="packageName" placeholder="这里填写包名"></select>
+                </div>
+                <button id="cpyPName" style="display: inline;">复制包名</button>
+            </div>
+            <textarea id="config" placeholder="这里放置未加密的配置"
+                style="width: 480px; height: 384px; margin-top: 3px;"></textarea>
+            <div class="btnContainer">
+                <button id="encryptBtn">生成加密内容</button>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div>
+            <textarea id="encrypt" placeholder="这里放置加密后的内容" style="width: 480px; min-height: 175px;"></textarea>
+            <div class="btnContainer">
+                <button id="decryptBtn">解密内容</button>
+                <button id="cpy">复制内容</button>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div>
+            <textarea id="generatted" placeholder="这里可以用来生成随机加密数据" readonly
+                style="width: 480px; min-height: 175px;"></textarea>
+            <div class="btnContainer">
+                <button id="generatorJsonBtn">隐藏到json中</button>
+                <button id="cpy2">复制内容</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let _keyStr = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+        function encrypt(str, seedString) {
+            let ret = ""
+            let len = seedString.length
+            let pos = len - 1;
+            for (let i = 0; i < str.length; i++) {
+                let ch = (str.charCodeAt(i) ^ seedString.charCodeAt(pos)) & 0xffff;
+                pos--;
+                if(pos < 0) pos = len - 1;
+
+                let index1 = Math.floor(ch / 36) % 36;
+                let index2 = ch % 36;
+                ret += _keyStr.charAt(index1);
+                ret += _keyStr.charAt(index2);
+            }
+
+            return ret;
+        }
+
+        function decrypt(str, seedString) {
+            let ret = "";
+            let len = seedString.length
+            let pos = len - 1;
+            for (let i = 0; i < str.length; i+=2) {
+                let c1 = str.charCodeAt(i);
+                let c2 = str.charCodeAt(i + 1);
+                let value = 0;
+                if(c1 >= 'a'.charCodeAt(0) && c1 <= 'z'.charCodeAt(0)) {
+                    value = value + (c1 - 'a'.charCodeAt(0)) * 36;
+                } else {
+                    value = value + (c1 - '0'.charCodeAt(0) + 26) * 36;
+                }
+                if(c2 >= 'a'.charCodeAt(0) && c2 <= 'z'.charCodeAt(0)) {
+                    value = value + (c2 - 'a'.charCodeAt(0));
+                } else {
+                    value = value + (c2 - '0'.charCodeAt(0) + 26);
+                }
+                ret += String.fromCharCode((value ^ seedString.charCodeAt(pos)) & 0xffff);
+                pos--;
+                if(pos < 0) pos = len - 1;
+            }
+            return ret;
+        }
+
+        function saveAllData(key) {
+            let config = document.getElementById('config');
+            let encrypt = document.getElementById('encrypt');
+
+            localStorage.setItem("cfgv2-" + key, JSON.stringify({
+                config: config.value,
+                encrypt: encrypt.value,
+                packageName: key,
+            }))
+            localStorage.setItem("lastPackageName", key);
+        }
+
+        function loadAllData(key) {
+            let savedInfo = [];
+            for(let saveKey in localStorage) {
+                if(saveKey.startsWith("cfgv2-")) {
+                    let saved = localStorage.getItem(saveKey)
+                    if(saved) {
+                        savedInfo.push(JSON.parse(saved))
+                    }
+                }
+            }
+            if (!key) {
+                let packageName = document.getElementById('packageName');
+                if (packageName.value) {
+                    key = packageName.value;
+                } else {
+                    key = localStorage.getItem("lastPackageName");
+                    if(key) {
+                        let founded = false;
+                        for (let i = 0; i < savedInfo.length; i++) {
+                            if(savedInfo[i].packageName === key) founded = true;
+                        }
+                        if(!founded) key = undefined;
+                    }
+                }
+            }
+            // savedInfo = savedInfo.sort((a, b) => {
+            //     return a.packageName > b.packageName ? 1 : -1
+            // });
+            $('#packageName').selectize({
+                create: true,
+                createOnBlur: true,
+                valueField: 'packageName',
+                labelField: 'packageName',
+                searchField: 'packageName',
+                sortField: 'packageName',
+                options: savedInfo,
+                items : [key],
+                selectOnTab: true,
+                openOnFocus: false
+            });
+            if (!key) return;
+            var control = $('#packageName')[0].selectize;
+            // control.setValue([key])
+            let saved = localStorage.getItem("cfgv2-" + key)
+            if (saved) {
+                let obj = JSON.parse(saved);
+                let encrypt = document.getElementById('encrypt');
+                let config = document.getElementById('config');
+                if (obj.config) config.value = obj.config;
+                if (obj.packageName) packageName.value = obj.packageName;
+                if (obj.encrypt) encrypt.value = obj.encrypt;
+            }
+        }
+
+        document.getElementById("packageName").onchange = function (ev) {
+            loadAllData();
+        }
+
+        document.getElementById('encryptBtn').onclick = function (ev) {
+            let packageName = document.getElementById('packageName');
+            let config = document.getElementById('config');
+            let textContent = config.value;
+            let output = document.getElementById('encrypt');
+            if (!packageName.value) {
+                alert("包名不能为空")
+                return;
+            }
+            if (!config.value) {
+                alert("配置内容不能为空")
+                return;
+            }
+
+            let ret = encrypt(textContent, packageName.value)
+            output.value = "~~" + ret + "~~";
+            saveAllData(packageName.value)
+        }
+
+        function getDecryptContent() {
+            let output = document.getElementById('encrypt');
+            if (!output.value) {
+                alert("需解密的不能为空")
+                return;
+            }
+            let textContent = output.value;
+            let reg1 = /.*~~([^~]+)~~.*/
+            let matched = reg1.exec(textContent)
+            if (matched) {
+                textContent = matched[1]
+            }
+            textContent = textContent.replace(/[^0-9a-zA-Z]/g, "")
+            return textContent;
+        }
+
+        document.getElementById('decryptBtn').onclick = function (ev) {
+            let config = document.getElementById('config');
+            let packageName = document.getElementById('packageName');
+            if (!packageName.value) {
+                alert("包名不能为空")
+                return;
+            }
+            let textContent = getDecryptContent();
+            let ret = decrypt(textContent, packageName.value)
+            config.value = ret;
+            saveAllData(packageName.value)
+        }
+
+        function GeneratorTools(str) {
+            fromStr = str;
+            cur = 0;
+            this._randomUnusedChar = function () {
+                let ustr = "@#*&+/=_"
+                return ustr.at(Math.floor(Math.random() * ustr.length))
+            }
+
+            this._randomAkey = function () {
+                let ret = "\"";
+                let ln = Math.floor(Math.random() * 10) + 1
+                for (let i = 0; i < ln; i++) {
+                    if (this._avalid()) {
+                        if (Math.floor(Math.random() * 10) < 2) {
+                            ret += this._randomUnusedChar();
+                        } else {
+                            let c = fromStr.at(cur)
+                            ret += c
+                            cur++;
+                            if (c == '<' || c == '>') {
+                                if (fromStr.at(cur) === c) {
+                                    ret += c
+                                    cur++;
+                                }
+                            }
+                        }
+                    } else {
+                        ret += this._randomUnusedChar();
+                        i++;
+                    }
+                }
+                ret += "\"";
+                return ret;
+            }
+
+            this._avalid = function () {
+                return cur < fromStr.length
+            }
+
+            this._randomAArrayItem = function () {
+                let ret = ""
+                let rand = Math.floor(Math.random() * 10)
+                if (rand < 2) {
+                    ret += this._randomAObject(Math.floor(Math.random() * 3) + 1)
+                } else if (rand < 4) {
+                    ret += this._randomAArray(Math.floor(Math.random() * 3) + 1)
+                } else {
+                    ret += this._randomAkey()
+                }
+                return ret;
+            }
+
+            this._randomAArray = function (listSize) {
+                let ret = "[";
+                if (!this._avalid()) listSize = 1;
+                for (let i = 0; i < listSize; i++) {
+                    ret += this._randomAArrayItem()
+                    if (i < listSize - 1) ret += ","
+                }
+                ret += "]"
+                return ret;
+            }
+
+            this._randomAObject = function (size) {
+                let ret = "{";
+                if (!this._avalid()) size = 1;
+                for (let i = 0; i < size; i++) {
+                    ret += this._randomAObjectItem();
+                    if (i < size - 1) ret += ","
+                }
+                ret += "}";
+                return ret;
+            }
+
+            this._randomAObjectItem = function (propSize) {
+                let ret = "";
+                ret += this._randomAkey()
+                ret += ":"
+                let rand = Math.floor(Math.random() * 10)
+                if (rand < 2) {
+                    ret += this._randomAObject(Math.floor(Math.random() * 3) + 1)
+                } else if (rand < 4) {
+                    ret += this._randomAArray(Math.floor(Math.random() * 3) + 1)
+                } else {
+                    ret += this._randomAkey()
+                }
+                return ret;
+            }
+            this.randomAData = function () {
+                let ret = "";
+                let isArr = Math.floor(Math.random() * 2) == 1;
+                ret += isArr ? "[" : "{"
+                while (this._avalid()) {
+                    if (isArr) {
+                        ret += this._randomAArrayItem()
+                    } else {
+                        ret += this._randomAObjectItem();
+                    }
+                    if (this._avalid()) ret += ","
+                }
+                ret += isArr ? "]" : "}"
+                return ret
+            }
+        }
+
+        function randomAChar() {
+            let idx = Math.floor(Math.random() * _keyStr.length)
+            return _keyStr.charAt(idx)
+        }
+
+        function randomAStr(size) {
+            let ret = ""
+            for (let i = 0; i < size; i++) {
+                ret += randomAChar();
+            }
+            return ret;
+        }
+
+        document.getElementById('generatorJsonBtn').onclick = function (ev) {
+            let textContent = getDecryptContent();
+            if (!textContent) return;
+            let before = randomAStr(Math.random() * 6 + 6)
+            let after = randomAStr(Math.random() * 6 + 6)
+            textContent = before + "~~" + textContent + "~~" + after
+            let tools = new GeneratorTools(textContent)
+            let ret = tools.randomAData()
+
+            let output = document.getElementById('generatted');
+            output.value = ret;
+
+            let packageName = document.getElementById('packageName');
+            if (packageName.value) {
+                saveAllData(packageName.value)
+            }
+        }
+
+        document.getElementById('cpy').onclick = function (ev) {
+            let output = document.getElementById('encrypt');
+            if (output.value !== '') {
+                output.select()
+                document.execCommand('copy')
+            }
+        }
+        document.getElementById('cpy2').onclick = function (ev) {
+            let output = document.getElementById('generatted');
+            if (output.value !== '') {
+                output.select()
+                document.execCommand('copy')
+            }
+        }
+        document.getElementById('cpyPName').onclick = function(ev) {
+            var packageName = document.getElementById("packageName");
+            if (packageName.value) {
+                var tempInput = document.createElement("input");
+                tempInput.style.position = "absolute";
+                tempInput.style.left = "-9999px";
+                document.body.appendChild(tempInput);
+                tempInput.value = packageName.value;
+                tempInput.select();
+                document.execCommand("copy");
+                document.body.removeChild(tempInput);
+            }
+        }
+        loadAllData()
+    </script>
+
+</body>
+
+</html>
