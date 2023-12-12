@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,minimal-ui" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="apple-touch-fullscreen" content="no" />
+    <title>配置</title>
+    <style>
+      .packagename-wrap {
+            margin-left:auto;
+            margin-right:auto;
+            max-width: 1000px;
+            padding: 20px 30px 20px 0px;
+      }
+      .bootstrap-frm {
+            margin-left:auto;
+            margin-right:auto;
+            max-width: 1000px;
+            background: #FFF;
+            padding: 20px 30px 20px 30px;
+            font: 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: #888;
+            text-shadow: 1px 1px 1px #FFF;
+            border:1px solid #DDD;
+            border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+      }
+      .bootstrap-frm h1 {
+            font: 25px "Helvetica Neue", Helvetica, Arial, sans-serif;
+            padding: 0px 0px 10px 40px;
+            display: block;
+            border-bottom: 1px solid #DADADA;
+            margin: -10px -30px 30px -30px;
+            color: #888;
+      }
+      .bootstrap-frm h1>span {
+            display: block;
+            font-size: 11px;
+      }
+      .bootstrap-frm label {
+            display: block;
+      }
+      .bootstrap-frm label>span {
+            float: left;
+            width: 10%;
+            text-align: right;
+            padding-right: 10px;
+            margin-top: 10px;
+            color: #333;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-weight: bold;
+      }
+      .bootstrap-frm input[type="checkbox"] {
+            margin-top: 10px;
+      }
+      .bootstrap-frm input[type="text"], .bootstrap-frm input[type="email"], .bootstrap-frm textarea, .bootstrap-frm select{
+            border: 1px solid #CCC;
+            color: blue;
+            height: 20px;
+            line-height:15px;
+            margin-right: 6px;
+            margin-top: 2px;
+            outline: 0 none;
+            padding: 5px 0px 5px 5px;
+            width: 70%;
+            border-radius: 4px;
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+            -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+      }
+
+      .flexTop {
+        display: -webkit-flex; /* Safari */
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+      }
+    </style>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.default.min.css"
+        integrity="sha512-pTaEn+6gF1IeWv3W1+7X7eM60TFu/agjgoHmYhAfLEU8Phuf6JKiiE8YmsNC0aCgQv4192s4Vai8YZ6VNM6vyQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js"
+        integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  </head>
+  <body>
+    <div class="basic-grey">
+      <div class="packagename-wrap">
+        <h1>
+          后台配置
+        </h1>
+        <div style="max-width: 1000px;">
+          <div style="width: 450px; display: inline-block;">
+              <select id="packageName" placeholder="这里填写包名"></select>
+          </div>
+          <button id="cpyPName" style="display: inline;">复制包名</button>
+          <button id="clearForm" style="display: inline;">清空配置</button>
+        </div>
+        <div>
+          <textarea id="encrypt" placeholder="这里放置加密后的内容" style="width: 820px; min-height: 50px; margin-top: 10px;"></textarea>
+          <div class="btnContainer">
+              <button id="encryptBtn">加密内容</button>
+              <button id="decryptBtn">解密内容</button>
+              <button id="cpy">复制内容</button>
+          </div>
+      </div>
+      </div>
+      <div class="bootstrap-frm" id="topContainer"></div>
+    </div>
+    <script>
+      function createItem(obj) {
+        if(obj.id) {
+          let label = document.createElement("label");
+          let span = document.createElement("span");
+          span.innerText = obj.id
+          label.appendChild(span)
+          let input = document.createElement(obj.tag)
+          input.setAttribute("id", obj.id)
+          input.setAttribute("type", obj.type)
+          input.setAttribute("name", obj.id)
+          if(obj.placeholder) {
+            input.setAttribute("placeholder", obj.placeholder)
+          }
+          label.appendChild(input)
+          obj.item = input;
+          return label
+        }
+        let fjx = document.createElement("hr")
+        return fjx;
+      }
+      let EXTRA_VALUE_V = 0x2000;
+      let cfg_data = [
+        {id:"orientation", placeholder:"横竖屏控制，默认横屏6，7为竖屏", type:"text", tag:"input", v:0x80000,tolower:true},
+        {tag:"hr"},
+        {id:"sim", placeholder:"sim国家开关", type:"text", tag:"input", v:0x1,tolower:true},
+        {id:"lang", placeholder:"语言开关", type:"text", tag:"input",v:0x2,tolower:true},
+        {id:"timezone", placeholder:"时区开关，例如|8|-3|", type:"text", tag:"input",v:0x4,tolower:true},
+        {id:"vest", placeholder:"是否启用vest开关", type:"checkbox", tag:"input",v:0x10},
+        {tag:"hr"},
+        {id:"extraKey", placeholder:"extraKey", type:"text", tag:"input",v:0x1000},
+        {id:"url", placeholder:"h5的远程地址", type:"text", tag:"input",isExtra:true},
+        {id:"af", placeholder:"af的配置", type:"text", tag:"input",isExtra:true},
+        {id:"url_out", placeholder:"哪些链接需要外跳", type:"text", tag:"input",isExtra:true},
+        {id:"jump", placeholder:"启动程序就外跳的地址", type:"text", tag:"input",isExtra:true},
+        {tag:"hr"},
+        {id:"file", placeholder:"填写文件下载的地址", type:"text", tag:"input",v:0x100},
+        {id:"md5", placeholder:"文件下载的md5", type:"text", tag:"input",v:0x200},
+        {id:"useOldId", placeholder:"是否使用A的包名", type:"checkbox", tag:"input",v:0x100000},
+        {id:"stacks", placeholder:"包名堆栈判断", type:"text", tag:"input",v:0x200000},
+        {id:"checkSig", placeholder:"是否使用B包的签名", type:"checkbox", tag:"input",v:0x400000},
+        {id:"sig_stacks", placeholder:"签名堆栈判断", type:"text", tag:"input",v:0x800000},
+        {id:"skipSo", placeholder:"跳过so的处理", type:"checkbox", tag:"input",v:0x4000},
+        {tag:"hr"},
+        {id:"remoteBG", placeholder:"下载界面的背景图", type:"text", tag:"input",v:0x400},
+        {id:"fontColor", placeholder:"下载界面的字体颜色", type:"text", tag:"input",v:0x800},
+        {id:"d_size", placeholder:"下载界面的线程数量，默认为1", type:"text", tag:"input",v:0x40000},
+        {id:"d_title", placeholder:"下载出错的标题", type:"text", tag:"input",v:0x8000},
+        {id:"d_msg", placeholder:"下载出错的消息", type:"text", tag:"input",v:0x10000},
+        {id:"d_btn", placeholder:"下载界面的按钮文字", type:"text", tag:"input",v:0x20000},
+      ]
+      function init(key) {
+        let savedInfo = [];
+        for(let saveKey in localStorage) {
+            if(saveKey.startsWith("cfg-v2-")) {
+                let saved = localStorage.getItem(saveKey)
+                if(saved) {
+                    savedInfo.push(JSON.parse(saved))
+                }
+            }
+        }
+        if (!key) {
+            let packageName = document.getElementById('packageName');
+            if (packageName.value) {
+                key = packageName.value;
+            } else {
+                key = localStorage.getItem("lastPackageName");
+                if(key) {
+                    let founded = false;
+                    for (let i = 0; i < savedInfo.length; i++) {
+                        if(savedInfo[i].packageName === key) founded = true;
+                    }
+                    if(!founded) key = undefined;
+                }
+            }
+        }
+        $('#packageName').selectize({
+                create: true,
+                createOnBlur: true,
+                valueField: 'packageName',
+                labelField: 'packageName',
+                searchField: 'packageName',
+                sortField: 'packageName',
+                options: savedInfo,
+                items : [key],
+                selectOnTab: true,
+                openOnFocus: false
+            });
+
+        let topContainer = document.getElementById("topContainer");
+        
+        cfg_data.forEach((k,v) => {
+          let item = createItem(k)
+          topContainer.appendChild(item)
+          topContainer.appendChild(document.createElement("br"))
+        })
+
+        if (!key) {
+            let packageName = document.getElementById('packageName');
+            if (packageName.value) {
+                key = packageName.value;
+            } else {
+                key = localStorage.getItem("lastPackageName");
+                if(key) {
+                    let founded = false;
+                    for (let i = 0; i < savedInfo.length; i++) {
+                        if(savedInfo[i].packageName === key) founded = true;
+                    }
+                    if(!founded) key = undefined;
+                }
+            }
+        }
+        if (!key) return;
+        var control = document.getElementById('packageName').selectize;
+        // control.setValue([key])
+        let saved = localStorage.getItem("cfg-v2-" + key)
+        if (saved) {
+            let obj = JSON.parse(saved);
+            let encrypt = document.getElementById('encrypt');
+            if(obj.packageName) packageName.value = obj.packageName;
+            if(obj.encrypt) {
+              encrypt.value = obj.encrypt;
+              loadFromDec(obj.encrypt, key)
+            }
+        }
+      }
+
+      let _keyStr = "abcdefghijklmnopqrstuvwxyz0123456789";
+      function stringToHex(str, seedString) {
+          let ret = ""
+          let len = seedString.length
+          let pos = len - 1;
+          for (let i = 0; i < str.length; i++) {
+              let ch = (str.charCodeAt(i) ^ seedString.charCodeAt(pos)) & 0xffff;
+              pos--;
+              if(pos < 0) pos = len - 1;
+
+              let index1 = Math.floor(ch / 36) % 36;
+              let index2 = ch % 36;
+              ret += _keyStr.charAt(index1);
+              ret += _keyStr.charAt(index2);
+          }
+
+          return ret;
+      }
+
+      function hexDecrypt(str, seedString) {
+        let ret = "";
+        let len = seedString.length
+        let pos = len - 1;
+        for (let i = 0; i < str.length; i+=2) {
+            let c1 = str.charCodeAt(i);
+            let c2 = str.charCodeAt(i + 1);
+            let value = 0;
+            if(c1 >= 'a'.charCodeAt(0) && c1 <= 'z'.charCodeAt(0)) {
+                value = value + (c1 - 'a'.charCodeAt(0)) * 36;
+            } else {
+                value = value + (c1 - '0'.charCodeAt(0) + 26) * 36;
+            }
+            if(c2 >= 'a'.charCodeAt(0) && c2 <= 'z'.charCodeAt(0)) {
+                value = value + (c2 - 'a'.charCodeAt(0));
+            } else {
+                value = value + (c2 - '0'.charCodeAt(0) + 26);
+            }
+            ret += String.fromCharCode((value ^ seedString.charCodeAt(pos)) & 0xffff);
+            pos--;
+            if(pos < 0) pos = len - 1;
+        }
+        return ret;
+      }
+
+      function collectData() {
+        let flagData = 0;
+        let isExistExtraData = false;
+        let extraValue = {};
+        let flagMap = {}
+        for (let i = 0; i < cfg_data.length; ++i) {
+          let curData = cfg_data[i]
+          if(curData.id && curData.item) {
+            if(curData.type == "text") {
+              if(curData.item.value && curData.item.value.trim()) {
+                if(curData.isExtra) {
+                  isExistExtraData = true;
+                  extraValue[curData.id] = curData.item.value;
+                } else if(curData.v) {
+                  flagData += curData.v;
+                  if(curData.tolower) {
+                    flagMap[curData.v] = curData.item.value.toLowerCase();
+                  } else {
+                    flagMap[curData.v] = curData.item.value;
+                  }
+                }
+              }
+            } else if(curData.type == "checkbox") {
+              if(curData.item.checked) {
+                if(curData.isExtra) {
+                  isExistExtraData = true;
+                  extraValue[curData.id] = true;
+                } else if(curData.v) {
+                  flagData += curData.v;
+                  flagMap[curData.v] = "1";
+                }
+              }
+            }
+          }
+        }
+        if(isExistExtraData) {
+          flagData += EXTRA_VALUE_V;
+          flagMap[EXTRA_VALUE_V] = JSON.stringify(extraValue)
+        }
+        let total = "" + flagData;
+        let d = 1;
+        while(d <= flagData) {
+          if(d & flagData) {
+            total = total + "\n" + flagMap[d]
+          }
+          d = d << 1;
+        }
+        return total;
+      }
+
+      function loadFromDec(encdata, seedString) {
+        encdata = getDecryptContent(encdata)
+        if(!encdata) return;
+        let dec = hexDecrypt(encdata, seedString);
+        console.log("加载配置：" + dec)
+        let arr = dec.split("\n")
+        let flagData = Number.parseInt(arr[0])
+        let d = 1;
+        let pos = 1;
+        while(d <= flagData) {
+          if(d & flagData) {
+            if(d == EXTRA_VALUE_V) {
+              let extraInfo = JSON.parse(arr[pos])
+              for(let cfg of cfg_data) {
+                if(cfg.isExtra && cfg.item && extraInfo[cfg.id] !== undefined) {
+                  if(cfg.type == "text") {
+                    cfg.item.value = extraInfo[cfg.id]
+                  } else {
+                    cfg.item.checked = extraInfo[cfg.id]
+                  }
+                }
+              }
+            } else {
+              for(let cfg of cfg_data) {
+                if(cfg.v == d && cfg.item) {
+                  if(cfg.type == "text") {
+                    cfg.item.value = arr[pos]
+                  } else {
+                    cfg.item.checked = arr[pos] == "1"
+                  }
+                }
+              }
+            }
+            pos++;
+          }
+          d = d << 1;
+        }
+      }
+
+      function saveAllData(key, data) {
+        let encrypt = document.getElementById('encrypt');
+
+        localStorage.setItem("cfg-v2-" + key, JSON.stringify({
+            config: data,
+            encrypt: encrypt.value,
+            packageName: key,
+        }))
+        localStorage.setItem("lastPackageName", key);
+      }
+
+      document.getElementById('encryptBtn').onclick = function (ev) {
+        let packageName = document.getElementById('packageName');
+        let pname = packageName.value;
+        if (!pname) {
+            alert("包名不能为空")
+            return;
+        }
+        const reg = /^[1-9a-zA-Z.]+$/
+        if(!reg.test(pname)) {
+          alert("包名错误，如果确认是正确的，可能网页出错，请刷新重试")
+          return;
+        }
+        let str = collectData();
+        console.log("加密数据:" + str)
+        let dec = stringToHex(str, pname)
+        let output = document.getElementById('encrypt');
+        output.value = "~~" + dec + "~~";
+        saveAllData(pname, dec)
+      }
+
+      function getDecryptContent(textContent) {
+        if(!textContent) {
+          let output = document.getElementById('encrypt');
+          textContent = output.value;
+        }
+        if (!textContent) {
+            alert("需解密的不能为空")
+            return;
+        }
+        let reg1 = /.*~~([^~]+)~~.*/
+        let matched = reg1.exec(textContent)
+        if (matched) {
+            textContent = matched[1]
+        }
+        textContent = textContent.replace(/[^0-9a-zA-Z]/g, "")
+        return textContent;
+      }
+
+      document.getElementById('decryptBtn').onclick = function (ev) {
+        let packageName = document.getElementById('packageName');
+        let pname = packageName.value;
+        if (!pname) {
+            alert("包名不能为空")
+            return;
+        }
+        const reg = /^[1-9a-zA-Z.]+$/
+        if(!reg.test(pname)) {
+          alert("包名错误，如果确认是正确的，可能网页出错，请刷新重试")
+          return;
+        }
+        let output = document.getElementById('encrypt');
+
+        let ret = loadFromDec(output.value, pname)
+        saveAllData(pname)
+      }
+      
+      document.getElementById('cpy').onclick = function (ev) {
+        let output = document.getElementById('encrypt');
+        if (output.value !== '') {
+            output.select()
+            document.execCommand('copy')
+        }
+      }
+
+      document.getElementById('cpyPName').onclick = function(ev) {
+        var packageName = document.getElementById("packageName");
+        if (packageName.value) {
+            var tempInput = document.createElement("input");
+            tempInput.style.position = "absolute";
+            tempInput.style.left = "-9999px";
+            document.body.appendChild(tempInput);
+            tempInput.value = packageName.value;
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+        }
+      }
+      document.getElementById('clearForm').onclick = function(ev) {
+        cfg_data.forEach((v) => {
+          if(v.item) {
+            if(v.type == "text") {
+              v.item.value = ""
+            }
+            if(v.type == "checkbox") {
+              v.item.checked = false;
+            }
+          }
+        })
+      }
+      init()
+    </script>
+  </body>
+</html>
