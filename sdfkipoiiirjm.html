@@ -130,6 +130,14 @@
           if(obj.placeholder) {
             input.setAttribute("placeholder", obj.placeholder)
           }
+          if(obj.default !== undefined)  {
+            if(obj.type == "text") {
+                input.value = obj.default;
+            } 
+            if(obj.type == "checkbox") {
+                input.checked = obj.default
+            }
+          }
           label.appendChild(input)
           obj.item = input;
           return label
@@ -146,7 +154,7 @@
         {id:"timezone", placeholder:"时区开关，例如|8|-3|", type:"text", tag:"input",v:0x4,tolower:true},
         {id:"vest", placeholder:"是否启用vest开关", type:"checkbox", tag:"input",v:0x10},
         {tag:"hr"},
-        {id:"extraKey", placeholder:"extraKey", type:"text", tag:"input",v:0x1000},
+        {id:"extraKey",default:"remote_cfg", placeholder:"extraKey", type:"text", tag:"input",v:0x1000, relative:EXTRA_VALUE_V},
         {id:"url", placeholder:"h5的远程地址", type:"text", tag:"input",isExtra:true},
         {id:"af", placeholder:"af的配置", type:"text", tag:"input",isExtra:true},
         {id:"url_out", placeholder:"哪些链接需要外跳", type:"text", tag:"input",isExtra:true},
@@ -292,6 +300,7 @@
         let isExistExtraData = false;
         let extraValue = {};
         let flagMap = {}
+        let relativeMap = {}
         for (let i = 0; i < cfg_data.length; ++i) {
           let curData = cfg_data[i]
           if(curData.id && curData.item) {
@@ -301,7 +310,11 @@
                   isExistExtraData = true;
                   extraValue[curData.id] = curData.item.value;
                 } else if(curData.v) {
-                  flagData += curData.v;
+                  if(curData.relative !== undefined) {
+                    relativeMap[curData.v] = curData.relative
+                  } else {
+                    flagData += curData.v;
+                  }
                   if(curData.tolower) {
                     flagMap[curData.v] = curData.item.value.toLowerCase();
                   } else {
@@ -315,7 +328,11 @@
                   isExistExtraData = true;
                   extraValue[curData.id] = true;
                 } else if(curData.v) {
-                  flagData += curData.v;
+                  if(curData.relative !== undefined) {
+                    relativeMap[curData.v] = curData.relative
+                  } else {
+                    flagData += curData.v;
+                  }
                   flagMap[curData.v] = "1";
                 }
               }
@@ -325,6 +342,11 @@
         if(isExistExtraData) {
           flagData += EXTRA_VALUE_V;
           flagMap[EXTRA_VALUE_V] = JSON.stringify(extraValue)
+        }
+        for(let re_key in relativeMap) {
+            if(flagMap[relativeMap[re_key]] !== undefined) {
+                flagData += Number.parseInt(re_key);
+            }
         }
         let total = "" + flagData;
         let d = 1;
