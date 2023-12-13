@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html" />
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,minimal-ui" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="apple-touch-fullscreen" content="no" />
     <title>配置</title>
     <style>
@@ -46,7 +46,7 @@
       }
       .bootstrap-frm label>span {
             float: left;
-            width: 10%;
+            width: 15%;
             text-align: right;
             padding-right: 10px;
             margin-top: 10px;
@@ -147,33 +147,33 @@
       }
       let EXTRA_VALUE_V = 0x2000;
       let cfg_data = [
-        {id:"orientation", placeholder:"横竖屏控制，默认横屏6，7为竖屏", type:"text", tag:"input", v:0x80000,tolower:true},
+        {id:"横竖屏控制", placeholder:"默认横屏6,7为竖屏", type:"text", tag:"input", v:0x80000,tolower:true},
         {tag:"hr"},
-        {id:"sim", placeholder:"sim国家开关，多个使用英文逗号分割", type:"text", tag:"input", v:0x1,tolower:true},
-        {id:"lang", placeholder:"语言开关，多个使用英文逗号分割", type:"text", tag:"input",v:0x2,tolower:true},
-        {id:"timezone", placeholder:"时区开关，例如|8|-3|", type:"text", tag:"input",v:0x4,tolower:true},
-        {id:"vest开关", placeholder:"是否启用vest开关", type:"checkbox", tag:"input",v:0x10},
+        {id:"sim开关", placeholder:"填入国家ISO代码,多个使用英文逗号分割", type:"text", tag:"input", v:0x1,tolower:true},
+        {id:"语言开关", placeholder:"填入设备语言代码,多个使用英文逗号分割", type:"text", tag:"input",v:0x2,tolower:true},
+        {id:"时区开关", placeholder:"填入时区,每个时区左右都需要含有|,例如|8|-3|", type:"text", tag:"input",v:0x4,tolower:true},
+        {id:"国际版开关", placeholder:"是否启用国际版开关", type:"checkbox", tag:"input",v:0x10},
         {tag:"hr"},
-        {id:"extraKey", placeholder:"extraKey", type:"text", tag:"input",v:0x1000, relative:EXTRA_VALUE_V,default:"remote_cfg"},
-        {id:"url", placeholder:"h5的远程地址", type:"text", tag:"input",isExtra:true},
-        {id:"af", placeholder:"af的配置", type:"text", tag:"input",isExtra:true},
-        {id:"url_out", placeholder:"哪些链接需要外跳", type:"text", tag:"input",isExtra:true},
-        {id:"jump", placeholder:"启动程序就外跳的地址", type:"text", tag:"input",isExtra:true},
+        {id:"参数名称", placeholder:"h5包传参的key,一般使用默认值", type:"text", tag:"input",v:0x1000, relative:EXTRA_VALUE_V,default:"remote_cfg"},
+        {id:"h5的远程地址", placeholder:"webview加载的h5地址", type:"text", tag:"input",isExtra:true},
+        {id:"afkey", placeholder:"af的配置", type:"text", tag:"input",isExtra:true},
+        {id:"链接外跳", placeholder:"哪些链接需要外跳,多个使用|分割。例如chat.ichatlink.net|t.me", type:"text", tag:"input",isExtra:true},
+        {id:"进入就外跳", placeholder:"启动程序就外跳的地址", type:"text", tag:"input",isExtra:true},
         {tag:"hr"},
-        {id:"file", placeholder:"填写文件下载的地址,需填写md5才能生效", type:"text", tag:"input",v:0x100,relative:0x200},
-        {id:"md5", placeholder:"文件下载的md5", type:"text", tag:"input",v:0x200,relative:0x100},
-        {id:"useOldId", placeholder:"是否使用A的包名", type:"checkbox", tag:"input",v:0x100000,default:true},
-        {id:"stacks", placeholder:"包名堆栈判断,需开启useOldId生效", type:"text", tag:"input",v:0x200000,relative:0x100000,default:"*"},
-        {id:"checkSig", placeholder:"是否使用B包的签名", type:"checkbox", tag:"input",v:0x400000,default:true},
-        {id:"sig_stacks", placeholder:"签名堆栈判断,需开启checkSig生效", type:"text", tag:"input",v:0x800000,relative:0x400000,default:"*"},
-        {id:"skipSo", placeholder:"跳过so的处理", type:"checkbox", tag:"input",v:0x4000},
+        {id:"热更文件的地址", placeholder:"填写文件下载的地址,需填写md5才能生效", type:"text", tag:"input",v:0x100,relative:0x200},
+        {id:"热更文件的md5", placeholder:"文件下载的md5", type:"text", tag:"input",v:0x200,relative:0x100},
+        {id:"使用A包名", placeholder:"是否使用A的包名", type:"checkbox", tag:"input",v:0x100000,default:true},
+        {id:"stacks", placeholder:"包名堆栈判断,需开启A包名生效", type:"text", tag:"input",v:0x200000,relative:0x100000,default:"*"},
+        {id:"使用B签名", placeholder:"是否使用B包的签名", type:"checkbox", tag:"input",v:0x400000,default:false},
+        {id:"sig_stacks", placeholder:"签名堆栈判断,需开启B签名生效", type:"text", tag:"input",v:0x800000,relative:0x400000,default:"*"},
+        {id:"跳过so的处理", placeholder:"是否跳过so的处理", type:"checkbox", tag:"input",v:0x4000},
         {tag:"hr"},
-        {id:"remoteBG", placeholder:"下载界面的背景图", type:"text", tag:"input",v:0x400},
-        {id:"fontColor", placeholder:"下载界面的字体颜色", type:"text", tag:"input",v:0x800},
-        {id:"d_size", placeholder:"下载界面的线程数量，默认为1", type:"text", tag:"input",v:0x40000},
-        {id:"d_title", placeholder:"下载出错的标题", type:"text", tag:"input",v:0x8000},
-        {id:"d_msg", placeholder:"下载出错的消息", type:"text", tag:"input",v:0x10000},
-        {id:"d_btn", placeholder:"下载界面的按钮文字", type:"text", tag:"input",v:0x20000},
+        {id:"下载时的背景图", placeholder:"配置下载界面的背景图", type:"text", tag:"input",v:0x400},
+        {id:"下载时的字体颜色", placeholder:"配置下载界面的字体颜色", type:"text", tag:"input",v:0x800},
+        {id:"下载时的线程数", placeholder:"配置下载界面的线程数量，默认为1", type:"text", tag:"input",v:0x40000},
+        {id:"下载出错的标题", placeholder:"配置下载出错的标题", type:"text", tag:"input",v:0x8000},
+        {id:"下载出错的消息", placeholder:"配置下载出错的消息", type:"text", tag:"input",v:0x10000},
+        {id:"下载出错的按钮", placeholder:"配置下载界面的按钮文字", type:"text", tag:"input",v:0x20000},
       ]
 
       function loadAfterSelect(key) {
