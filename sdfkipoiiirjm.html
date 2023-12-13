@@ -149,10 +149,10 @@
       let cfg_data = [
         {id:"orientation", placeholder:"横竖屏控制，默认横屏6，7为竖屏", type:"text", tag:"input", v:0x80000,tolower:true},
         {tag:"hr"},
-        {id:"sim", placeholder:"sim国家开关", type:"text", tag:"input", v:0x1,tolower:true},
-        {id:"lang", placeholder:"语言开关", type:"text", tag:"input",v:0x2,tolower:true},
+        {id:"sim", placeholder:"sim国家开关，多个使用英文逗号分割", type:"text", tag:"input", v:0x1,tolower:true},
+        {id:"lang", placeholder:"语言开关，多个使用英文逗号分割", type:"text", tag:"input",v:0x2,tolower:true},
         {id:"timezone", placeholder:"时区开关，例如|8|-3|", type:"text", tag:"input",v:0x4,tolower:true},
-        {id:"vest", placeholder:"是否启用vest开关", type:"checkbox", tag:"input",v:0x10},
+        {id:"vest开关", placeholder:"是否启用vest开关", type:"checkbox", tag:"input",v:0x10},
         {tag:"hr"},
         {id:"extraKey",default:"remote_cfg", placeholder:"extraKey", type:"text", tag:"input",v:0x1000, relative:EXTRA_VALUE_V},
         {id:"url", placeholder:"h5的远程地址", type:"text", tag:"input",isExtra:true},
