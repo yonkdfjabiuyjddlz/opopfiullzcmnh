@@ -364,10 +364,18 @@
         for(let cfg of cfg_data) {
           if(cfg.item) {
             if(cfg.type == "text") {
-              cfg.item.value = ""
+              if(cfg.default !== undefined && cfg.relative !== undefined) {
+                cfg.item.value = cfg.default;
+              } else {
+                cfg.item.value = "";
+              }
             }
             if(cfg.type == "checkbox") {
-              cfg.item.checked = false
+              if(cfg.default !== undefined && cfg.relative !== undefined) {
+                cfg.item.checked = !!cfg.default
+              } else {
+                cfg.item.checked = false
+              }
             }
           }
         }
