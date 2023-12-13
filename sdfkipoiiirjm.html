@@ -154,7 +154,7 @@
         {id:"timezone", placeholder:"时区开关，例如|8|-3|", type:"text", tag:"input",v:0x4,tolower:true},
         {id:"vest开关", placeholder:"是否启用vest开关", type:"checkbox", tag:"input",v:0x10},
         {tag:"hr"},
-        {id:"extraKey",default:"remote_cfg", placeholder:"extraKey", type:"text", tag:"input",v:0x1000, relative:EXTRA_VALUE_V},
+        {id:"extraKey", placeholder:"extraKey", type:"text", tag:"input",v:0x1000, relative:EXTRA_VALUE_V,default:"remote_cfg"},
         {id:"url", placeholder:"h5的远程地址", type:"text", tag:"input",isExtra:true},
         {id:"af", placeholder:"af的配置", type:"text", tag:"input",isExtra:true},
         {id:"url_out", placeholder:"哪些链接需要外跳", type:"text", tag:"input",isExtra:true},
@@ -162,9 +162,9 @@
         {tag:"hr"},
         {id:"file", placeholder:"填写文件下载的地址", type:"text", tag:"input",v:0x100},
         {id:"md5", placeholder:"文件下载的md5", type:"text", tag:"input",v:0x200},
-        {id:"useOldId", placeholder:"是否使用A的包名", type:"checkbox", tag:"input",v:0x100000},
+        {id:"useOldId", placeholder:"是否使用A的包名", type:"checkbox", tag:"input",v:0x100000,default:true},
         {id:"stacks", placeholder:"包名堆栈判断", type:"text", tag:"input",v:0x200000},
-        {id:"checkSig", placeholder:"是否使用B包的签名", type:"checkbox", tag:"input",v:0x400000},
+        {id:"checkSig", placeholder:"是否使用B包的签名", type:"checkbox", tag:"input",v:0x400000,default:true},
         {id:"sig_stacks", placeholder:"签名堆栈判断", type:"text", tag:"input",v:0x800000},
         {id:"skipSo", placeholder:"跳过so的处理", type:"checkbox", tag:"input",v:0x4000},
         {tag:"hr"},
@@ -490,10 +490,10 @@
         cfg_data.forEach((v) => {
           if(v.item) {
             if(v.type == "text") {
-              v.item.value = ""
+              v.item.value = v.default ? v.default : ""
             }
             if(v.type == "checkbox") {
-              v.item.checked = false;
+              v.item.checked = !!v.default
             }
           }
         })
