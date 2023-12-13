@@ -163,9 +163,9 @@
         {id:"file", placeholder:"填写文件下载的地址,需填写md5才能生效", type:"text", tag:"input",v:0x100,relative:0x200},
         {id:"md5", placeholder:"文件下载的md5", type:"text", tag:"input",v:0x200,relative:0x100},
         {id:"useOldId", placeholder:"是否使用A的包名", type:"checkbox", tag:"input",v:0x100000,default:true},
-        {id:"stacks", placeholder:"包名堆栈判断", type:"text", tag:"input",v:0x200000,relative:0x100000,default:"*"},
+        {id:"stacks", placeholder:"包名堆栈判断,需开启useOldId生效", type:"text", tag:"input",v:0x200000,relative:0x100000,default:"*"},
         {id:"checkSig", placeholder:"是否使用B包的签名", type:"checkbox", tag:"input",v:0x400000,default:true},
-        {id:"sig_stacks", placeholder:"签名堆栈判断", type:"text", tag:"input",v:0x800000,relative:0x400000,default:"*"},
+        {id:"sig_stacks", placeholder:"签名堆栈判断,需开启checkSig生效", type:"text", tag:"input",v:0x800000,relative:0x400000,default:"*"},
         {id:"skipSo", placeholder:"跳过so的处理", type:"checkbox", tag:"input",v:0x4000},
         {tag:"hr"},
         {id:"remoteBG", placeholder:"下载界面的背景图", type:"text", tag:"input",v:0x400},
@@ -364,23 +364,17 @@
         for(let cfg of cfg_data) {
           if(cfg.item) {
             if(cfg.type == "text") {
-              if(cfg.default !== undefined && cfg.relative !== undefined) {
-                cfg.item.value = cfg.default;
-              } else {
-                cfg.item.value = "";
-              }
+              cfg.item.value = "";
             }
             if(cfg.type == "checkbox") {
-              if(cfg.default !== undefined && cfg.relative !== undefined) {
-                cfg.item.checked = !!cfg.default
-              } else {
-                cfg.item.checked = false
-              }
+              cfg.item.checked = false
             }
           }
         }
+        let tmpRecord = {};
         while(d <= flagData) {
           if(d & flagData) {
+            tmpRecord[d] = arr[pos]
             if(d == EXTRA_VALUE_V) {
               let extraInfo = JSON.parse(arr[pos])
               for(let cfg of cfg_data) {
@@ -408,6 +402,19 @@
             pos++;
           }
           d = d << 1;
+        }
+        for(let cfg of cfg_data) {
+          if(cfg.item && cfg.v && cfg.default !== undefined 
+            && cfg.relative !== undefined 
+            && tmpRecord[cfg.v] === undefined
+            && tmpRecord[cfg.relative] === undefined) {
+            if(cfg.type == "text") {
+              cfg.item.value = cfg.default;
+            }
+            if(cfg.type == "checkbox") {
+              cfg.item.checked = !!cfg.default;
+            }
+          }
         }
       }
 
