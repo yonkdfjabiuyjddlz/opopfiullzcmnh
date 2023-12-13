@@ -175,6 +175,27 @@
         {id:"d_msg", placeholder:"下载出错的消息", type:"text", tag:"input",v:0x10000},
         {id:"d_btn", placeholder:"下载界面的按钮文字", type:"text", tag:"input",v:0x20000},
       ]
+
+      function loadAfterSelect(key) {
+        if (!key) {
+          let packageName = document.getElementById('packageName');
+          if (packageName.value) {
+            key = packageName.value;
+          }
+        }
+        if (!key) return;
+        let saved = localStorage.getItem("cfg-v2-" + key)
+        if (saved) {
+            let obj = JSON.parse(saved);
+            let encrypt = document.getElementById('encrypt');
+            if(obj.packageName) packageName.value = obj.packageName;
+            if(obj.encrypt) {
+              encrypt.value = obj.encrypt;
+              loadFromDec(obj.encrypt, key)
+            }
+        }
+      }
+
       function init(key) {
         let savedInfo = [];
         for(let saveKey in localStorage) {
@@ -220,35 +241,7 @@
           topContainer.appendChild(item)
           topContainer.appendChild(document.createElement("br"))
         })
-
-        if (!key) {
-            let packageName = document.getElementById('packageName');
-            if (packageName.value) {
-                key = packageName.value;
-            } else {
-                key = localStorage.getItem("lastPackageName");
-                if(key) {
-                    let founded = false;
-                    for (let i = 0; i < savedInfo.length; i++) {
-                        if(savedInfo[i].packageName === key) founded = true;
-                    }
-                    if(!founded) key = undefined;
-                }
-            }
-        }
-        if (!key) return;
-        var control = document.getElementById('packageName').selectize;
-        // control.setValue([key])
-        let saved = localStorage.getItem("cfg-v2-" + key)
-        if (saved) {
-            let obj = JSON.parse(saved);
-            let encrypt = document.getElementById('encrypt');
-            if(obj.packageName) packageName.value = obj.packageName;
-            if(obj.encrypt) {
-              encrypt.value = obj.encrypt;
-              loadFromDec(obj.encrypt, key)
-            }
-        }
+        loadAfterSelect(key)
       }
 
       let _keyStr = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -368,6 +361,16 @@
         let flagData = Number.parseInt(arr[0])
         let d = 1;
         let pos = 1;
+        for(let cfg of cfg_data) {
+          if(cfg.item) {
+            if(cfg.type == "text") {
+              cfg.item.value = ""
+            }
+            if(cfg.type == "checkbox") {
+              cfg.item.checked = false
+            }
+          }
+        }
         while(d <= flagData) {
           if(d & flagData) {
             if(d == EXTRA_VALUE_V) {
@@ -376,7 +379,8 @@
                 if(cfg.isExtra && cfg.item && extraInfo[cfg.id] !== undefined) {
                   if(cfg.type == "text") {
                     cfg.item.value = extraInfo[cfg.id]
-                  } else {
+                  }
+                  if(cfg.type == "checkbox") {
                     cfg.item.checked = extraInfo[cfg.id]
                   }
                 }
@@ -386,7 +390,8 @@
                 if(cfg.v == d && cfg.item) {
                   if(cfg.type == "text") {
                     cfg.item.value = arr[pos]
-                  } else {
+                  }
+                  if(cfg.type == "checkbox") {
                     cfg.item.checked = arr[pos] == "1"
                   }
                 }
@@ -445,6 +450,10 @@
         }
         textContent = textContent.replace(/[^0-9a-zA-Z]/g, "")
         return textContent;
+      }
+
+      document.getElementById("packageName").onchange = function (ev) {
+        loadAfterSelect();
       }
 
       document.getElementById('decryptBtn').onclick = function (ev) {
