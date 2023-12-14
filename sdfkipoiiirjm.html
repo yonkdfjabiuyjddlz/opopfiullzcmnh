@@ -121,7 +121,7 @@
         if(obj.id) {
           let label = document.createElement("label");
           let span = document.createElement("span");
-          span.innerText = obj.id
+          span.innerText = obj.name
           label.appendChild(span)
           let input = document.createElement(obj.tag)
           input.setAttribute("id", obj.id)
@@ -147,33 +147,33 @@
       }
       let EXTRA_VALUE_V = 0x2000;
       let cfg_data = [
-        {id:"横竖屏控制", placeholder:"默认横屏6,7为竖屏", type:"text", tag:"input", v:0x80000,tolower:true},
+        {id:"orientation", name:"横竖屏控制",name , placeholder:"默认横屏6,7为竖屏", type:"text", tag:"input", v:0x80000,tolower:true},
         {tag:"hr"},
-        {id:"sim开关", placeholder:"填入国家ISO代码,多个使用英文逗号分割", type:"text", tag:"input", v:0x1,tolower:true},
-        {id:"语言开关", placeholder:"填入设备语言代码,多个使用英文逗号分割", type:"text", tag:"input",v:0x2,tolower:true},
-        {id:"时区开关", placeholder:"填入时区,每个时区左右都需要含有|,例如|8|-3|", type:"text", tag:"input",v:0x4,tolower:true},
-        {id:"国际版开关", placeholder:"是否启用国际版开关", type:"checkbox", tag:"input",v:0x10},
+        {id:"sim", name:"sim开关", placeholder:"填入国家ISO代码,多个使用英文逗号分割", type:"text", tag:"input", v:0x1,tolower:true},
+        {id:"lang", name:"语言开关", placeholder:"填入设备语言代码,多个使用英文逗号分割", type:"text", tag:"input",v:0x2,tolower:true},
+        {id:"timezone", name:"时区开关", placeholder:"填入时区,每个时区左右都需要含有|,例如|8|-3|", type:"text", tag:"input",v:0x4,tolower:true},
+        {id:"vest", name:"国际版开关", placeholder:"是否启用国际版开关", type:"checkbox", tag:"input",v:0x10},
         {tag:"hr"},
-        {id:"附加参数名称", placeholder:"h5包传参的key,一般使用默认值", type:"text", tag:"input",v:0x1000, relative:EXTRA_VALUE_V,default:"remote_cfg"},
-        {id:"h5的远程地址", placeholder:"webview加载的h5地址", type:"text", tag:"input",isExtra:true},
-        {id:"afkey", placeholder:"af的配置", type:"text", tag:"input",isExtra:true},
-        {id:"链接外跳", placeholder:"哪些链接需要外跳,多个使用|分割。例如chat.ichatlink.net|t.me", type:"text", tag:"input",isExtra:true},
-        {id:"进入就外跳", placeholder:"启动程序就外跳的地址", type:"text", tag:"input",isExtra:true},
+        {id:"extraKey", name:"附加参数名称", placeholder:"h5包传参的key,一般使用默认值", type:"text", tag:"input",v:0x1000, relative:EXTRA_VALUE_V,default:"remote_cfg"},
+        {id:"url", name:"h5的远程地址", placeholder:"webview加载的h5地址", type:"text", tag:"input",isExtra:true},
+        {id:"af_key", name:"afkey", placeholder:"af的配置", type:"text", tag:"input",isExtra:true},
+        {id:"url_out", name:"链接外跳", placeholder:"哪些链接需要外跳,多个使用|分割。例如chat.ichatlink.net|t.me", type:"text", tag:"input",isExtra:true},
+        {id:"jump", name:"进入就外跳", placeholder:"启动程序就外跳的地址", type:"text", tag:"input",isExtra:true},
         {tag:"hr"},
-        {id:"热更文件的地址", placeholder:"填写文件下载的地址,需填写md5才能生效", type:"text", tag:"input",v:0x100,relative:0x200},
-        {id:"热更文件的md5", placeholder:"文件下载的md5", type:"text", tag:"input",v:0x200,relative:0x100},
-        {id:"使用A包名", placeholder:"是否使用A的包名", type:"checkbox", tag:"input",v:0x100000,default:true},
-        {id:"stacks", placeholder:"包名堆栈判断,需开启A包名生效", type:"text", tag:"input",v:0x200000,relative:0x100000,default:"*"},
-        {id:"使用B签名", placeholder:"是否使用B包的签名", type:"checkbox", tag:"input",v:0x400000,default:false},
-        {id:"sig_stacks", placeholder:"签名堆栈判断,需开启B签名生效", type:"text", tag:"input",v:0x800000,relative:0x400000,default:"*"},
-        {id:"跳过so的处理", placeholder:"是否跳过so的处理", type:"checkbox", tag:"input",v:0x4000},
+        {id:"file", name:"热更文件的地址", placeholder:"填写文件下载的地址,需填写md5才能生效", type:"text", tag:"input",v:0x100,relative:0x200},
+        {id:"md5", name:"热更文件的md5", placeholder:"文件下载的md5", type:"text", tag:"input",v:0x200,relative:0x100},
+        {id:"useOldId", name:"使用A包名", placeholder:"是否使用A的包名", type:"checkbox", tag:"input",v:0x100000,default:true},
+        {id:"stacks", name:"stacks", placeholder:"包名堆栈判断,需开启A包名生效", type:"text", tag:"input",v:0x200000,relative:0x100000,default:"*"},
+        {id:"checkSig", name:"使用B签名", placeholder:"是否使用B包的签名", type:"checkbox", tag:"input",v:0x400000,default:false},
+        {id:"sig_stacks", name:"sig_stacks", placeholder:"签名堆栈判断,需开启B签名生效", type:"text", tag:"input",v:0x800000,relative:0x400000,default:"*"},
+        {id:"skipSo", name:"跳过so的处理", placeholder:"是否跳过so的处理", type:"checkbox", tag:"input",v:0x4000},
         {tag:"hr"},
-        {id:"下载时的背景图", placeholder:"配置下载界面的背景图", type:"text", tag:"input",v:0x400},
-        {id:"下载时的字体颜色", placeholder:"配置下载界面的字体颜色", type:"text", tag:"input",v:0x800},
-        {id:"下载时的线程数", placeholder:"配置下载界面的线程数量，默认为1", type:"text", tag:"input",v:0x40000},
-        {id:"下载出错的标题", placeholder:"配置下载出错的标题", type:"text", tag:"input",v:0x8000},
-        {id:"下载出错的消息", placeholder:"配置下载出错的消息", type:"text", tag:"input",v:0x10000},
-        {id:"下载出错的按钮", placeholder:"配置下载界面的按钮文字", type:"text", tag:"input",v:0x20000},
+        {id:"remoteBG", name:"下载时的背景图", placeholder:"配置下载界面的背景图", type:"text", tag:"input",v:0x400},
+        {id:"fontColor", name:"下载时的字体颜色", placeholder:"配置下载界面的字体颜色", type:"text", tag:"input",v:0x800},
+        {id:"d_size", name:"下载时的线程数", placeholder:"配置下载界面的线程数量，默认为1", type:"text", tag:"input",v:0x40000},
+        {id:"d_title", name:"下载出错的标题", placeholder:"配置下载出错的标题", type:"text", tag:"input",v:0x8000},
+        {id:"d_msg", name:"下载出错的消息", placeholder:"配置下载出错的消息", type:"text", tag:"input",v:0x10000},
+        {id:"d_btn", name:"下载出错的按钮", placeholder:"配置下载界面的按钮文字", type:"text", tag:"input",v:0x20000},
       ]
 
       function loadAfterSelect(key) {
