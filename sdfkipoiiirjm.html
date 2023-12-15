@@ -429,6 +429,17 @@
         localStorage.setItem("lastPackageName", key);
       }
 
+      function copyText(text) {
+        var tempInput = document.createElement("input");
+        tempInput.style.position = "absolute";
+        tempInput.style.left = "-9999px";
+        document.body.appendChild(tempInput);
+        tempInput.value = text;
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+      }
+
       document.getElementById('encryptBtn').onclick = function (ev) {
         let packageName = document.getElementById('packageName');
         let pname = packageName.value;
@@ -447,6 +458,7 @@
         let output = document.getElementById('encrypt');
         output.value = "~~" + dec + "~~";
         saveAllData(pname, dec)
+        copyText(output.value)
       }
 
       function getDecryptContent(textContent) {
@@ -500,14 +512,7 @@
       document.getElementById('cpyPName').onclick = function(ev) {
         var packageName = document.getElementById("packageName");
         if (packageName.value) {
-            var tempInput = document.createElement("input");
-            tempInput.style.position = "absolute";
-            tempInput.style.left = "-9999px";
-            document.body.appendChild(tempInput);
-            tempInput.value = packageName.value;
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
+            copyText(packageName.value)
         }
       }
       document.getElementById('clearForm').onclick = function(ev) {
