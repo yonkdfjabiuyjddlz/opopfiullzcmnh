@@ -159,8 +159,13 @@
         {id:"url", name:"h5的远程地址", placeholder:"webview加载的h5地址", type:"text", tag:"input",isExtra:true},
         {id:"af_key", name:"afkey", placeholder:"af的配置", type:"text", tag:"input",isExtra:true},
         {id:"url_out", name:"链接外跳", placeholder:"哪些链接需要外跳,多个使用|分割。例如chat.ichatlink.net|t.me", type:"text", tag:"input",isExtra:true},
-        {id:"jump", name:"进入就外跳", placeholder:"启动程序就外跳的地址", type:"text", tag:"input",isExtra:true},
         {id:"ua", name:"UserAgent", placeholder:"自定义UA信息，看具体平台要求，默认不需填", type:"text", tag:"input",isExtra:true},
+        {id:"jump", name:"外跳地址", placeholder:"配置外跳地址。不配置则不外跳", type:"text", tag:"input",isExtra:true},
+        {id:"jump_type", name:"外跳类型", placeholder:"默认0。0:每次打开就跳;1:按照cd来弹;2:延迟多久一直弹;3:进入游戏多少次数后开始弹", valueType:"int", type:"text", tag:"input",isExtra:true},
+        {id:"jump_time", name:"外跳的CD/次数", placeholder:"默认24。", type:"text", valueType:"int", tag:"input",isExtra:true},
+        {id:"jump_title", name:"跳转时弹窗的标题", placeholder:"默认Tips", type:"text", tag:"input",isExtra:true},
+        {id:"jump_msg", name:"跳转时弹窗的内容", placeholder:"不填则不弹，直接跳转", type:"text", tag:"input",isExtra:true},
+        {id:"jump_btn", name:"跳转时弹窗的按钮", placeholder:"默认Ok", type:"text", tag:"input",isExtra:true},
         {tag:"hr"},
         {id:"file", name:"热更文件的地址", placeholder:"填写文件下载的地址,需填写md5才能生效", type:"text", tag:"input",v:0x100,relative:0x200},
         {id:"md5", name:"热更文件的md5", placeholder:"文件下载的md5", type:"text", tag:"input",v:0x200,relative:0x100},
@@ -304,7 +309,17 @@
               if(curData.item.value && curData.item.value.trim()) {
                 if(curData.isExtra) {
                   isExistExtraData = true;
-                  extraValue[curData.id] = curData.item.value;
+                  if(curData.valueType) {
+                    if(curData.valueType === "int") {
+                        extraValue[curData.id] = parseInt(curData.item.value)
+                    } else if(curData.valueType === "bool") {
+                        extraValue[curData.id] = !!curData.item.value
+                    } else if(curData.valueType === "float") {
+                        extraValue[curData.id] = parseFloat(curData.item.value)
+                    }
+                  } else {
+                    extraValue[curData.id] = curData.item.value;
+                  }
                 } else if(curData.v) {
                   if(curData.relative !== undefined) {
                     relativeMap[curData.v] = curData.relative
@@ -322,7 +337,11 @@
               if(curData.item.checked) {
                 if(curData.isExtra) {
                   isExistExtraData = true;
-                  extraValue[curData.id] = true;
+                  if(curData.valueType === "int") {
+                    extraValue[curData.id] = 1;
+                  } else {
+                    extraValue[curData.id] = true;
+                  }
                 } else if(curData.v) {
                   if(curData.relative !== undefined) {
                     relativeMap[curData.v] = curData.relative
