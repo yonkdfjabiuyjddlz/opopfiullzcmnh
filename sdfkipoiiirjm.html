@@ -118,6 +118,18 @@
       <div class="bootstrap-frm" id="topContainer"></div>
     </div>
     <script>
+      //string encoding-decoding
+    var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(input){var output="";var chr1,chr2,chr3,enc1,enc2,enc3,enc4;var i=0;input=Base64._utf8_encode(input);while(i<input.length){chr1=input.charCodeAt(i++);chr2=input.charCodeAt(i++);chr3=input.charCodeAt(i++);enc1=chr1>>2;enc2=((chr1&3)<<4)|(chr2>>4);enc3=((chr2&15)<<2)|(chr3>>6);enc4=chr3&63;if(isNaN(chr2)){enc3=enc4=64;}else if(isNaN(chr3)){enc4=64;}
+    output=output+this._keyStr.charAt(enc1)+this._keyStr.charAt(enc2)+this._keyStr.charAt(enc3)+this._keyStr.charAt(enc4);}
+    return output;},decode:function(input){var output="";var chr1,chr2,chr3;var enc1,enc2,enc3,enc4;var i=0;input=input.replace(/[^A-Za-z0-9\+\/\=]/g,"");while(i<input.length){enc1=this._keyStr.indexOf(input.charAt(i++));enc2=this._keyStr.indexOf(input.charAt(i++));enc3=this._keyStr.indexOf(input.charAt(i++));enc4=this._keyStr.indexOf(input.charAt(i++));chr1=(enc1<<2)|(enc2>>4);chr2=((enc2&15)<<4)|(enc3>>2);chr3=((enc3&3)<<6)|enc4;output=output+String.fromCharCode(chr1);if(enc3!=64){output=output+String.fromCharCode(chr2);}
+    if(enc4!=64){output=output+String.fromCharCode(chr3);}}
+    output=Base64._utf8_decode(output);return output;},_utf8_encode:function(string){string=string.replace(/\r\n/g,"\n");var utftext="";for(var n=0;n<string.length;n++){var c=string.charCodeAt(n);if(c<128){utftext+=String.fromCharCode(c);}
+    else if((c>127)&&(c<2048)){utftext+=String.fromCharCode((c>>6)|192);utftext+=String.fromCharCode((c&63)|128);}
+    else{utftext+=String.fromCharCode((c>>12)|224);utftext+=String.fromCharCode(((c>>6)&63)|128);utftext+=String.fromCharCode((c&63)|128);}}
+    return utftext;},_utf8_decode:function(utftext){var string="";var i=0;var c=c1=c2=0;while(i<utftext.length){c=utftext.charCodeAt(i);if(c<128){string+=String.fromCharCode(c);i++;}
+    else if((c>191)&&(c<224)){c2=utftext.charCodeAt(i+1);string+=String.fromCharCode(((c&31)<<6)|(c2&63));i+=2;}
+    else{c2=utftext.charCodeAt(i+1);c3=utftext.charCodeAt(i+2);string+=String.fromCharCode(((c&15)<<12)|((c2&63)<<6)|(c3&63));i+=3;}}
+    return string;}}
       function createItem(obj) {
         if(obj.id) {
           let label = document.createElement("label");
@@ -163,9 +175,9 @@
         {id:"jump", name:"外跳地址", placeholder:"配置外跳地址。不配置则不外跳", type:"text", tag:"input",isExtra:true},
         {id:"jump_type", name:"外跳类型", placeholder:"默认0。0:每次打开就跳;1:按照cd来弹;2:延迟多久一直弹;3:进入游戏多少次数后开始弹", valueType:"int", type:"text", tag:"input",isExtra:true},
         {id:"jump_time", name:"外跳的CD/次数", placeholder:"默认24。", type:"text", valueType:"int", tag:"input",isExtra:true},
-        {id:"jump_title", name:"跳转时弹窗的标题", placeholder:"默认Tips", type:"text", tag:"input",isExtra:true},
-        {id:"jump_msg", name:"跳转时弹窗的内容", placeholder:"不填则不弹，直接跳转", type:"text", tag:"input",isExtra:true},
-        {id:"jump_btn", name:"跳转时弹窗的按钮", placeholder:"默认Ok", type:"text", tag:"input",isExtra:true},
+        {id:"jump_title", name:"跳转时弹窗的标题", placeholder:"默认Tips", type:"text", tag:"input", base64:true, isExtra:true},
+        {id:"jump_msg", name:"跳转时弹窗的内容", placeholder:"不填则不弹，直接跳转", type:"text", tag:"input", base64:true, isExtra:true},
+        {id:"jump_btn", name:"跳转时弹窗的按钮", placeholder:"默认Ok", type:"text", tag:"input", base64:true, isExtra:true},
         {tag:"hr"},
         {id:"file", name:"热更文件的地址", placeholder:"填写文件下载的地址,需填写md5才能生效", type:"text", tag:"input",v:0x100,relative:0x200},
         {id:"md5", name:"热更文件的md5", placeholder:"文件下载的md5", type:"text", tag:"input",v:0x200,relative:0x100},
@@ -318,7 +330,11 @@
                         extraValue[curData.id] = parseFloat(curData.item.value)
                     }
                   } else {
-                    extraValue[curData.id] = curData.item.value;
+                    if(curData.base64) {
+                      extraValue[curData.id] = Base64.encode(curData.item.value)
+                    } else {
+                      extraValue[curData.id] = curData.item.value;
+                    }
                   }
                 } else if(curData.v) {
                   if(curData.relative !== undefined) {
@@ -329,7 +345,11 @@
                   if(curData.tolower) {
                     flagMap[curData.v] = curData.item.value.toLowerCase();
                   } else {
-                    flagMap[curData.v] = curData.item.value;
+                    if(curData.base64) {
+                      flagMap[curData.v] = Base64.encode(curData.item.value)
+                    } else {
+                      flagMap[curData.v] = curData.item.value;
+                    }
                   }
                 }
               }
@@ -402,7 +422,11 @@
               for(let cfg of cfg_data) {
                 if(cfg.isExtra && cfg.item && extraInfo[cfg.id] !== undefined) {
                   if(cfg.type == "text") {
-                    cfg.item.value = extraInfo[cfg.id]
+                    if(cfg.base64) {
+                      cfg.item.value = Base64.decode(extraInfo[cfg.id])
+                    } else {
+                      cfg.item.value = extraInfo[cfg.id];
+                    }
                   }
                   if(cfg.type == "checkbox") {
                     cfg.item.checked = extraInfo[cfg.id]
@@ -413,7 +437,11 @@
               for(let cfg of cfg_data) {
                 if(cfg.v == d && cfg.item) {
                   if(cfg.type == "text") {
-                    cfg.item.value = arr[pos]
+                    if(cfg.base64) {
+                      cfg.item.value = Base64.decode(arr[pos])
+                    } else {
+                      cfg.item.value = arr[pos]
+                    }
                   }
                   if(cfg.type == "checkbox") {
                     cfg.item.checked = arr[pos] == "1"
