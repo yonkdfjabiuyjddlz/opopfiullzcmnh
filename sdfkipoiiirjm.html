@@ -120,20 +120,183 @@
       </div>
       </div>
       <div class="bootstrap-frm" id="topContainer"></div>
+      <div class="bootstrap-frm">
+        <h3>工具区</h3>
+        <label>
+          <span>输入SHA1值</span>
+          <input id="sha1Input" type="text" placeholder="输入SHA1的值。">
+          <button id="convertSHA1" style="display: inline;">复制hash值</button>
+        </label>
+      </div>
     </div>
     <script>
       //string encoding-decoding
-    var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(input){var output="";var chr1,chr2,chr3,enc1,enc2,enc3,enc4;var i=0;input=Base64._utf8_encode(input);while(i<input.length){chr1=input.charCodeAt(i++);chr2=input.charCodeAt(i++);chr3=input.charCodeAt(i++);enc1=chr1>>2;enc2=((chr1&3)<<4)|(chr2>>4);enc3=((chr2&15)<<2)|(chr3>>6);enc4=chr3&63;if(isNaN(chr2)){enc3=enc4=64;}else if(isNaN(chr3)){enc4=64;}
-    output=output+this._keyStr.charAt(enc1)+this._keyStr.charAt(enc2)+this._keyStr.charAt(enc3)+this._keyStr.charAt(enc4);}
-    return output;},decode:function(input){var output="";var chr1,chr2,chr3;var enc1,enc2,enc3,enc4;var i=0;input=input.replace(/[^A-Za-z0-9\+\/\=]/g,"");while(i<input.length){enc1=this._keyStr.indexOf(input.charAt(i++));enc2=this._keyStr.indexOf(input.charAt(i++));enc3=this._keyStr.indexOf(input.charAt(i++));enc4=this._keyStr.indexOf(input.charAt(i++));chr1=(enc1<<2)|(enc2>>4);chr2=((enc2&15)<<4)|(enc3>>2);chr3=((enc3&3)<<6)|enc4;output=output+String.fromCharCode(chr1);if(enc3!=64){output=output+String.fromCharCode(chr2);}
-    if(enc4!=64){output=output+String.fromCharCode(chr3);}}
-    output=Base64._utf8_decode(output);return output;},_utf8_encode:function(string){string=string.replace(/\r\n/g,"\n");var utftext="";for(var n=0;n<string.length;n++){var c=string.charCodeAt(n);if(c<128){utftext+=String.fromCharCode(c);}
-    else if((c>127)&&(c<2048)){utftext+=String.fromCharCode((c>>6)|192);utftext+=String.fromCharCode((c&63)|128);}
-    else{utftext+=String.fromCharCode((c>>12)|224);utftext+=String.fromCharCode(((c>>6)&63)|128);utftext+=String.fromCharCode((c&63)|128);}}
-    return utftext;},_utf8_decode:function(utftext){var string="";var i=0;var c=c1=c2=0;while(i<utftext.length){c=utftext.charCodeAt(i);if(c<128){string+=String.fromCharCode(c);i++;}
-    else if((c>191)&&(c<224)){c2=utftext.charCodeAt(i+1);string+=String.fromCharCode(((c&31)<<6)|(c2&63));i+=2;}
-    else{c2=utftext.charCodeAt(i+1);c3=utftext.charCodeAt(i+2);string+=String.fromCharCode(((c&15)<<12)|((c2&63)<<6)|(c3&63));i+=3;}}
-    return string;}}
+      var Base64 = {
+        _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+        encode: function (input) {
+          var output = "";
+          var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+          var i = 0;
+          input = Base64._utf8_encode(input);
+          while (i < input.length) {
+            chr1 = input.charCodeAt(i++);
+            chr2 = input.charCodeAt(i++);
+            chr3 = input.charCodeAt(i++);
+            enc1 = chr1 >> 2;
+            enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+            enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+            enc4 = chr3 & 63;
+            if (isNaN(chr2)) {
+              enc3 = enc4 = 64;
+            } else if (isNaN(chr3)) {
+              enc4 = 64;
+            }
+            output =
+              output +
+              this._keyStr.charAt(enc1) +
+              this._keyStr.charAt(enc2) +
+              this._keyStr.charAt(enc3) +
+              this._keyStr.charAt(enc4);
+          }
+          return output;
+        },
+        decode: function (input) {
+          var output = "";
+          var chr1, chr2, chr3;
+          var enc1, enc2, enc3, enc4;
+          var i = 0;
+          input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+          while (i < input.length) {
+            enc1 = this._keyStr.indexOf(input.charAt(i++));
+            enc2 = this._keyStr.indexOf(input.charAt(i++));
+            enc3 = this._keyStr.indexOf(input.charAt(i++));
+            enc4 = this._keyStr.indexOf(input.charAt(i++));
+            chr1 = (enc1 << 2) | (enc2 >> 4);
+            chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+            chr3 = ((enc3 & 3) << 6) | enc4;
+            output = output + String.fromCharCode(chr1);
+            if (enc3 != 64) {
+              output = output + String.fromCharCode(chr2);
+            }
+            if (enc4 != 64) {
+              output = output + String.fromCharCode(chr3);
+            }
+          }
+          output = Base64._utf8_decode(output);
+          return output;
+        },
+        _clean_hex : function(input, remove_0x) {
+          input = input.toUpperCase();
+          
+          if (remove_0x) {
+            input = input.replace(/0x/gi, "");        
+          }
+          
+          var orig_input = input;
+          input = input.replace(/[^A-Fa-f0-9]/g, "");
+          return input;    
+        },
+        _binary_to_base64: function(input) {
+          var ret = new Array();
+          var i = 0;
+          var j = 0;
+          var char_array_3 = new Array(3);
+          var char_array_4 = new Array(4);
+          var in_len = input.length;
+          var pos = 0;
+      
+          while (in_len--)
+          {
+              char_array_3[i++] = input[pos++];
+              if (i == 3)
+              {
+                  char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+                  char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+                  char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+                  char_array_4[3] = char_array_3[2] & 0x3f;
+      
+                  for (i = 0; (i <4) ; i++)
+                      ret += this._keyStr.charAt(char_array_4[i]);
+                  i = 0;
+              }
+          }
+      
+          if (i)
+          {
+              for (j = i; j < 3; j++)
+                  char_array_3[j] = 0;
+      
+              char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+              char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+              char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+              char_array_4[3] = char_array_3[2] & 0x3f;
+      
+              for (j = 0; (j < i + 1); j++)
+                  ret += this._keyStr.charAt(char_array_4[j]);
+      
+              while ((i++ < 3))
+                  ret += '=';
+      
+          }
+      
+          return ret;
+        },
+        sha1ConvertBase64(inputValue) {
+          var cleaned_hex = this._clean_hex(inputValue, true);
+          if (cleaned_hex.length % 2) {
+            return "";
+          }
+          var binary = new Array();
+          for (var i=0; i<cleaned_hex.length/2; i++) {
+            var h = cleaned_hex.substr(i*2, 2);
+            binary[i] = parseInt(h,16);        
+          }
+          return this._binary_to_base64(binary);
+        },
+        _utf8_encode: function (string) {
+          string = string.replace(/\r\n/g, "\n");
+          var utftext = "";
+          for (var n = 0; n < string.length; n++) {
+            var c = string.charCodeAt(n);
+            if (c < 128) {
+              utftext += String.fromCharCode(c);
+            } else if (c > 127 && c < 2048) {
+              utftext += String.fromCharCode((c >> 6) | 192);
+              utftext += String.fromCharCode((c & 63) | 128);
+            } else {
+              utftext += String.fromCharCode((c >> 12) | 224);
+              utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+              utftext += String.fromCharCode((c & 63) | 128);
+            }
+          }
+          return utftext;
+        },
+        _utf8_decode: function (utftext) {
+          var string = "";
+          var i = 0;
+          var c = (c1 = c2 = 0);
+          while (i < utftext.length) {
+            c = utftext.charCodeAt(i);
+            if (c < 128) {
+              string += String.fromCharCode(c);
+              i++;
+            } else if (c > 191 && c < 224) {
+              c2 = utftext.charCodeAt(i + 1);
+              string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+              i += 2;
+            } else {
+              c2 = utftext.charCodeAt(i + 1);
+              c3 = utftext.charCodeAt(i + 2);
+              string += String.fromCharCode(
+                ((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63)
+              );
+              i += 3;
+            }
+          }
+          return string;
+        },
+      };
+
       function createItem(obj) {
         if(obj.id) {
           let label = document.createElement("label");
@@ -176,7 +339,7 @@
         {tag:"hr"},
         {id:"extraKey", name:"附加参数名称", placeholder:"h5包传参的key,一般使用默认值", type:"text", tag:"input",v:0x1000, relative:EXTRA_VALUE_V,default:"remote_cfg"},
         {id:"url", name:"h5的远程地址", placeholder:"webview加载的h5地址", type:"text", tag:"input",isExtra:true},
-        {id:"url_out", name:"链接外跳", placeholder:"哪些链接需要外跳,多个使用|分割。例如chat.ichatlink.net|t.me", type:"text", tag:"input",isExtra:true},
+        {id:"url_out", name:"外跳匹配规则", placeholder:"哪些链接需要外跳,多个使用|分割。例如chat.ichatlink.net|t.me", type:"text", tag:"input",isExtra:true},
         {id:"ua", name:"UserAgent", placeholder:"自定义UA信息，看具体平台要求，默认不需填", type:"text", tag:"input",isExtra:true},
         {tag:"hr", isExtra:true},
         {id:"af_key", name:"afkey", placeholder:"af的配置", type:"text", tag:"input",isExtra:true},
@@ -590,6 +753,17 @@
         })
       }
       init()
+      document.getElementById('convertSHA1').onclick = function(ev) {
+        var sha1Value = document.getElementById("sha1Input");
+        if (sha1Value.value) {
+          var outputValue = Base64.sha1ConvertBase64(sha1Value.value)
+          if(outputValue) {
+            copyText(outputValue)
+          } else {
+            alert("SHA1错误")
+          }
+        }
+      }
     </script>
   </body>
 </html>
