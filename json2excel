@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo</title>
+  <script src="json2excel.umd.js"></script>
+</head>
+
+<body>
+  <input type="file" id="files" />
+  <button id="export">导出为Excel</button>
+</body>
+<script>
+  var filesElement = document.getElementById("files");
+  var data;
+  if(filesElement) {
+    filesElement.addEventListener("change", function() {
+      var selectedFile = filesElement.files[0];
+      var reader = new FileReader();
+      reader.readAsText(selectedFile,"UTF-8");
+      reader.onload = function(){
+        data = JSON.parse(this.result);
+      };
+    }, false);
+  }
+  document.getElementById("export").onclick = function() {
+    if(data) {
+      const json2excel = new customJson2excel({ data });
+      json2excel.generate();
+    }
+  };
+</script>
+
+</html>
