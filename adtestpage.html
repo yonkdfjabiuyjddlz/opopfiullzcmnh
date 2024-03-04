@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TestPage</title>
+  <script>
+    function test_window_open() {
+      window.open('https://www.baidu.com', '__blank')
+    }
+
+    function test_h5at() {
+      window.h5at.postMessage(JSON.stringify({
+        method: 'trackAdjustEvent',
+        params: { eventToken: 'fdafaf', cbParams: { k1: 'v1', k2: 'v2' }, revenues: { revenue: '0.99', currency: 'USD' } },
+      }))
+    }
+
+    
+  </script>
+</head>
+
+<body>
+<button onclick="test_window_open()">测试window.open</button>
+<button onclick="test_h5at()">测试h5at.postMessge(json)</button>
+
+</body>
+
+</html>
