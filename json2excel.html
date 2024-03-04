@@ -13,15 +13,32 @@
   <button id="export">导出为Excel</button>
 </body>
 <script>
+  var HtmlUtil = {
+	htmlEncode: function(html) {
+		var tempDiv = document.createElement('div');
+		(tempDiv.textContent != undefined) ? (tempDiv.textContent = html) : (tempDiv.innerText = html);
+		var output = tempDiv.innerHTML;
+		tempDiv = null;
+		return output;
+	},
+	htmlDecode: function(text) {
+		var tempDiv = document.createElement('div');
+		tempDiv.innerHTML = text;
+		var output = tempDiv.innerText || tempDiv.textContent;
+		tempDiv = null;
+		return output;
+	}
+}
   var filesElement = document.getElementById("files");
   var data;
   if(filesElement) {
     filesElement.addEventListener("change", function() {
       var selectedFile = filesElement.files[0];
       var reader = new FileReader();
+
       reader.readAsText(selectedFile,"UTF-8");
       reader.onload = function(){
-        data = JSON.parse(this.result);
+        data = JSON.parse(HtmlUtil.htmlDecode(this.result));
       };
     }, false);
   }
